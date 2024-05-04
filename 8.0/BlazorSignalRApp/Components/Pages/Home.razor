@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager Navigation
@@ -6,19 +6,21 @@
 
 <PageTitle>Home</PageTitle>
 
-<div class="form-group">
-    <label>
-        User:
-        <input @bind="userInput" />
-    </label>
+<div class="container-fluid">
+    <div class="form-group">
+        <label>
+            User:
+            <input class="form-control" @bind="userInput" />
+        </label>
+    </div>
+    <div class="form-group">
+        <label>
+            Message:
+            <input class="form-control" @bind="messageInput" />
+        </label>
+    </div>
+    <button class="btn btn-outline-primary mt-2" @onclick="Send" disabled="@(!IsConnected)">Send</button>
 </div>
-<div class="form-group">
-    <label>
-        Message:
-        <input @bind="messageInput" size="50" />
-    </label>
-</div>
-<button @onclick="Send" disabled="@(!IsConnected)">Send</button>
 
 <hr>
 
@@ -41,11 +43,11 @@
             .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
             .Build();
 
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        hubConnection.On<string, string>("ReceiveMessage", async (user, message) =>
         {
             var encodedMsg = $"{user}: {message}";
             messages.Add(encodedMsg);
-            InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
         });
 
         await hubConnection.StartAsync();
